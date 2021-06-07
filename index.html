@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <body>
+    <h1>Branchial</h1>
+    <div id="controls">
+      <table>
+        <tr>
+          <td>turn:</td>
+          <td id="output_turn"></td>
+        </tr>
+        <tr>
+          <td>move:</td>
+          <td><input id="input_move" type="text"></td>
+        </tr>
+        <tr>
+          <td>message:</td>
+          <td id="output_message"></td>
+        </tr>
+      </table>
+    </div>
+    <div id="network"></div>
+    <div id="description">
+      <h2>Rules</h2>
+      <p>
+        This project is till very experimental, so the following rules do not make much of a game. However, they still dictate the possibilities of interacting with the system.
+      </p>
+      <p>
+        The game proceeds by the two players (player1 is red, and player2 is blue) taking alternating turns, starting with player1. On their turn, a player must move a <b>friendly</b> from it's location in an active world (the move's <b>source</b> location), to a legal position in a world (the move's <b>target</b> location). Note that the target and source worlds can be the same world. So, a move is encoded by two locations: the source location and the target location.
+      </p>
+      <p>
+        A <em>legal</em> target location is a location that is not occupied by a friendly pawn.
+      </p>
+      <p>
+        An <em>active</em> world is either the genesis world on the first turn or a world that was created by the previous turn.
+      </p>
+      <p>
+        A <em>location</em> is encoded by the world index, a <code>#</code>, the pawn row, and then the pawn column. For example, <code>0#A1</code> is the location of the top-left tile in world <code>0#</code>.
+      </p>
+      <h3>Example</h3>
+      <p>
+        The following discussion considers this sequence of moves:
+        <ol>
+          <li>P1: <code>0#A1 0#B1</code></li>
+          <li>P2: <code>1#D4 0#C4</code></li>
+          <li>P1: <code>2#A1 1#A2</code></li>
+        </ol>
+      </p>
+      <p>
+        As an example move, suppose I am player1 and am making the first move. Then a valid move for I can make is <code>0#A1 0#B1</code>, since there is a friendly (blue) pawn on <code>0#A1</code> and the tile at <code>0#B1</code> is empty. When I make this move, a new world, <code>1#</code>, is created where my pawn is no longer at <code>A1</code> but is instead now at <code>B1</code>. However, the pawn at <code>0#A1</code> has not moved. Rather, there is now a "new" pawn at <code>1#A2</code>. And now <code>1#</code> is the active world for player2's turn.
+      </p>
+      <p>
+        Beyond the first turn, it is possible to move to worlds other than the active one. Running with the example above, consider what happens when player2's first move is <code>1#D4 0#C4</code>. Importantly, player2 is moving from world 1 to world 2. The result of this move is that there are now three worlds, where the third world, <code>2#</code>, just created looks just as is player2 had gone first! Note also that the arrows between worlds indicate that <code>2#</code> is a pointed to by both <code>0#</code> and <code>1#</code>. It is a "descendant" of <code>0#</code> because it inherits the world state of <code>0#</code>, and it is a "sibling" of <code>1#</code> because from there it was given player2's pawn.
+      </p>
+      <p>
+        So far, it seems that not much interesting has happened other than player1 and player2 diverging the worlds to reflect two timelines where one went first rather than the other. But subtly, there is a particular interesting result so far. In the preivous move when player2 moved <code>1#D4 0#C4</code>, player2's pawn in <code>0#</code> was in the same position as it was in <code>1#</code>. So, these are effectively the same pawn even though they are in different worlds (which makes sense since that pawn hadn't moved yet). When player2 makes this move they moved the single pawn that was in both worlds, to a new position in world <code>2#</code>.
+      </p>
+      <p>
+        The alternative to this would to move to a <em>divergent</em> world i.e. a target world with a divergent history from the source world. Consider player1's next move: <code>2#A1 1#A2</code>. The result is a world, <code>3#</code>, with two red pawns! Since the pawns came from divergent worlds, they are now different pawns and so manifest as two pawns.
+      </p>
+    </div>
+  </body>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Branchial</title>
+    <style>
+      #network {
+        width: 600px;
+        height: 600px;
+        border: 1px solid black;
+      }
+
+      #controls {
+        font-size: 18pt;
+
+      }
+
+      #input_move {
+        font-size: 18pt;
+      }
+
+      #output_turn {
+        font-weight: bold;
+      }
+      #output_turn.player1 {
+        color: red;
+      }
+      #output_turn.player2 {
+        color: blue;
+      }
+
+      #description {
+        width: 600px;
+      }
+    </style>
+    <script src="build/bundle.js"></script>
+  </head>
+</html>
